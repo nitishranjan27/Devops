@@ -1,93 +1,163 @@
-----Create a database-------
+using Buisness_Layer.Interface;
+using Buisness_Layer.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Repository_Layer.Interface;
+using Repository_Layer.Service;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-create database WorkLineDB
+namespace BookStore
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
-use WorkLineDB
+        public IConfiguration Configuration { get; }
 
-----Create a Table-----
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            //User
+            services.AddTransient<IUserBL, UserBL>();
+            services.AddTransient<IUserRL, UserRL>();
+            //Book
+            services.AddTransient<IBookBL, BookBL>();
+            services.AddTransient<IBookRL, BookRL>();
+            //Cart
+            services.AddTransient<ICartBL, CartBL>();
+            services.AddTransient<ICartRL, CartRL>();
+            //WishList
+            services.AddTransient<IWishlistBL, WishlistBL>();
+            services.AddTransient<IWishlistRL, WishlistRL>();
+            //Address
+            services.AddTransient<IAddressBL, AddressBL>();
+            services.AddTransient<IAddressRL, AddressRL>();
+            //Feedback
+            services.AddTransient<IFeedbackBL, FeedbackBL>();
+            services.AddTransient<IFeedbackRL, FeedbackRL>();
+            //Order
+            services.AddTransient<IOrderBL, OrderBL>();
+            services.AddTransient<IOrderRL, OrderRL>();
+            //Admin
+            services.AddTransient<IAdminBL, AdminBL>();
+            services.AddTransient<IAdminRL, AdminRL>();
 
-create table Users(
-MemberId int not null primary key,
-MemberName varchar(max) not null,
-EffectiveDate Date not null,
-DateOfJoining Date not null,
-Unit varchar(max) not null,
-Business varchar(max) not null,
-Capability varchar(max) not null,
-Team varchar(max) not null,
-Designation varchar(max) not null,
-Grade varchar(max),
-County varchar(max) not null,
-City varchar(max) not null,
-OfficeName varchar(max) not null,
-State varchar(max),
-LocationType varchar(max) not null,
-FunctionalAppriserID int not null,
-FunctionalAppriserName varchar(max) not null,
-SkipLevelManagerID int not null,
-SkipLevelManagerName varchar(max) not null,
-SLACode varchar(max) not null,
-CostType varchar(max) not null,
-Percentage int not null,
-BillableType varchar(max) not null,
-Remark varchar(max),
-EmployeeCount int not null,
-BillingModel varchar(max) not null,
-ClientBrand varchar(max)
-);
+            services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                name: "AllowOrigin",
+              builder => {
+                  builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+              });
+            });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Welcome to BookStore" });
 
-select * from Users;
+                var securitySchema = new OpenApiSecurityScheme
+                {
+                    Description = "Using the Authorization header with the Bearer scheme.",
 
---------Insert the Records------------------
+                    Name = "Authorization",
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('19','Sumit Pachouri','01-Jan-2022','03-Sep-2013','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','IT - Enterprise Application','Technical Architect',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','1367','Surender Singh Yadav','2314','Manish Sahu',
-'BHSI 002TE','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                    In = ParameterLocation.Header,
 
+                    Type = SecuritySchemeType.Http,
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('20','Navneet Kumar','30-May-2022','16-Sep-2013','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','IT - Enterprise Application','Associate Director',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','4852','Vivek Singh Kushwaha','1186','Yudishtra Kumar',
-'BHSI 002TE','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                    Scheme = "bearer",
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('57','Priti Saini','01-Jan-2022','11-Feb-2014','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','IT - Enterprise Application','BA Lead',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','1724','Prateek Bhatnagar','2314','Manish Sahu',
-'BHSI 002TE','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('85','Indu Kumar','25-Feb-2022','23-Jun-2014','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','IT - Enterprise Application','Tech Lead',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','1367','Surender Singh Yadav','2314','Manish Sahu',
-'BHSI 002TE','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                        Id = "Bearer"
+                    }
+                };
+                c.AddSecurityDefinition("Bearer", securitySchema);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { securitySchema, new[] { "Bearer" } }
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('87','Akhilesh Kumar','01-Dec-2021','03-Jul-2014','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','Quality Engineering Services','QA Manager',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','1110','Ravinder Singh Yadav','3597','Smruti Ranjan Badu',
-'BHSI 002TQ','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                });
+            });
+            //var jwtSection = Configuration.GetSection("Jwt:Key");
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
+            });
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
 
-INSERT INTO Users(MemberId,MemberName,EffectiveDate,DateOfJoining,Unit,Business,Capability,Team,
-Designation,Grade,County,City,OfficeName,State,LocationType,FunctionalAppriserID,FunctionalAppriserName,
-SkipLevelManagerID,SkipLevelManagerName,SLACode,CostType,Percentage,BillableType,Remark,EmployeeCount,
-BillingModel,ClientBrand) VALUES ('102','Kamal Sangwan','25-Feb-2022','08-Aug-2014','Xceedance Consulting India Private Limited','Xceedance Consulting India Private Limited','Technology & Core Systems','Quality Engineering Services','QA Manager',
-'Emptyi','India','Gurgaon','Gurgaon,SEZ Level 5','emptyi','HO','1110','Ravinder Singh Yadav','3597','Smruti Ranjan Badu',
-'BHSI 002TQ','Percentage','100','Billable','Emptyi','1','FTE','Emptyi');
+                    ValidateAudience = false,
 
-select * from Users;
+                    ValidateLifetime = true,
 
-ALTER TABLE Users
-ALTER COLUMN Remark varchar(max);
+                    ValidateIssuerSigningKey = true,
 
-UPDATE Users set Grade = '' where SkipLevelManagerID = '1186'
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"])) //Configuration["JwtToken:SecretKey"]
+                };
 
-----Delete from Users where ClientBrand='Emptyi';--
+            });
+
+        }
+    
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            //app.UseCors("AllowOrigin");
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bookstore API ");
+                // c.RoutePrefix = String.Empty;
+            });
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseCors("AllowOrigin");
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
